@@ -168,10 +168,56 @@ export default function App() {
         </div>
       </section>
 
+      {/* WHY DIFFERENT */}
+      <section className="section">
+        <div className="section-head">
+          <p className="sec-eyebrow">03 &mdash; The difference</p>
+          <h2 className="sec-title">No tax. Not a compromise.</h2>
+        </div>
+        <div className="why-lead">
+          <p>
+            Every lottery token before this ran on the same broken model: intercept trades,
+            take a cut, fund the pot. It worked until it didn't — traders avoided buying,
+            liquidity slowly drained, and the chart bled. The tax was the product's own worst enemy.
+          </p>
+          <p>
+            Cypher Wheel doesn't touch your tokens. The prize pool fills from Pump.fun creator
+            fees — a platform-level mechanism that has nothing to do with your buy or sell.
+            You trade freely. The wheel keeps spinning.
+          </p>
+        </div>
+        <div className="compare">
+          <div className="compare-col compare-bad">
+            <p className="compare-label">Other lottery tokens</p>
+            <ul className="compare-list">
+              <li>5–15% tax cut on every buy and sell</li>
+              <li>Tax drains liquidity on every single trade</li>
+              <li>Traders avoid buying just to skip the fee</li>
+              <li>Chart bleeds as liquidity slowly empties out</li>
+              <li>Prize pool funded by punishing your own holders</li>
+              <li>Results unverifiable — you just trust the dev</li>
+              <li>Sell pressure baked in from day one</li>
+            </ul>
+          </div>
+          <div className="compare-col compare-good">
+            <p className="compare-label">Cypher Wheel</p>
+            <ul className="compare-list">
+              <li>Zero transfer tax. Zero. On every trade, always.</li>
+              <li>Pool funded by Pump.fun platform fees — not trades</li>
+              <li>Buy and sell without losing a single token</li>
+              <li>50% of every pot permanently burns the supply</li>
+              <li>Hold 1,000+ tokens and you're automatically entered</li>
+              <li>Every draw cryptographically verifiable on-chain</li>
+              <li>Deflationary by design — every round makes it scarcer</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* HOLDERS */}
       <section className="section">
         <div className="section-head">
-          <p className="sec-eyebrow">03 &mdash; The room</p>
+          <p className="sec-eyebrow">04 &mdash; The room</p>
           <h2 className="sec-title">The Holders</h2>
         </div>
         <Leaderboard entries={entries} />
@@ -180,7 +226,7 @@ export default function App() {
       {/* FAIR */}
       <section className="section fair">
         <div className="section-head">
-          <p className="sec-eyebrow">04 &mdash; Trust</p>
+          <p className="sec-eyebrow">05 &mdash; Trust</p>
           <h2 className="sec-title">Provably fair, by design</h2>
         </div>
         <div className="fair-body">

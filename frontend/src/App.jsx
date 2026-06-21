@@ -88,7 +88,7 @@ export default function App() {
         <div className="hero-left">
           <p className="eyebrow">Holder rewards &middot; Solana</p>
           <h1 className="hero-title">
-            The wheel pays a holder<span className="serif-em"> every hour.</span>
+            The wheel pays a holder<span className="serif-em"> every 5 minutes.</span>
           </h1>
           <p className="hero-sub">
             Hold the token, hold tickets. Each round draws one wallet from a sealed seed and

@@ -14,7 +14,7 @@ function useCountdown(target) {
   const ms = Math.max(0, (target || 0) - now);
   const m = Math.floor(ms / 60000);
   const s = Math.floor((ms % 60000) / 1000);
-  return { label: `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`, done: ms === 0 };
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 export default function App() {
@@ -39,15 +39,10 @@ export default function App() {
 
   const countdown = useCountdown(state?.nextSpinAt);
 
-  useEffect(() => {
-    if (countdown.done && state?.demo && !spinning) triggerSpin();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown.done]);
-
   function triggerSpin() {
     if (spinning) return;
-    const { round, entries: demoEntries, winnerIndex } = runDemoRound();
-    setEntries(demoEntries);
+    const { round, entries: e, winnerIndex } = runDemoRound();
+    setEntries(e);
     setSpinning(true);
     requestAnimationFrame(() => {
       const node = wheelHost.current?.querySelector('.wheel');
@@ -63,150 +58,116 @@ export default function App() {
     if (r) { setWinner(r); refresh(); }
   }
 
-  const dryRun = state?.dryRun ?? true;
-  const isDemo = state?.demo;
-  const buyback = state?.buybackPercent ?? 20;
-  const token = state?.token;
+  const isDemo  = state?.demo;
+  const dryRun  = state?.dryRun ?? true;
+  const buyback = state?.buybackPercent ?? 50;
+  const eligible = state?.preview?.eligibleHolders ?? 0;
+  const sol     = Number(state?.poolSol || 0).toFixed(2);
+  const token   = state?.token;
 
   return (
-    <div className="page">
-      {/* NAV */}
+    <div className="site">
+
+      {/* ── Nav ─────────────────────────── */}
       <nav className="nav">
-        <div className="wordmark">
-          <span className="wm-mark">C</span>
-          <span className="wm-name">CYPHER</span>
+        <div className="nav-logo">
+          <span className="nav-logo-mark">C</span>
+          CYPHER WHEEL
         </div>
-        <div className="nav-right">
-          {isDemo && <span className="tag tag-demo"><span className="live-dot" />preview</span>}
-          {token && <span className="tag mono">{token.slice(0, 4)}&hellip;{token.slice(-4)}</span>}
-          <a className="nav-cta" href="#wheel">Enter the room</a>
+
+        <div className="nav-timer">
+          <span className="nav-timer-label">next draw</span>
+          <span className="nav-timer-count">{countdown}</span>
+        </div>
+
+        <div className="nav-status">
+          {isDemo && <span className="pill pill-demo">demo</span>}
+          {dryRun && <span className="pill pill-dry">dry run</span>}
         </div>
       </nav>
 
-      {/* HERO — live activity led */}
-      <header className="hero">
-        <div className="hero-left">
-          <p className="eyebrow">Holder rewards &middot; Solana</p>
-          <h1 className="hero-title">
-            The wheel pays a holder<span className="serif-em"> every 5 minutes.</span>
-          </h1>
-          <p className="hero-sub">
-            Hold the token, hold tickets. Each round draws one wallet from a sealed seed and
-            an on-chain blockhash, buys the token back, burns it, and pays the winner.
-          </p>
-          <div className="hero-pool">
-            <div>
-              <p className="pool-k">Prize pool</p>
-              <p className="pool-v">{Number(state?.poolSol || 0).toFixed(2)}<span> SOL</span></p>
-            </div>
-            <div className="pool-div" />
-            <div>
-              <p className="pool-k">Next draw</p>
-              <p className="pool-count">{countdown.label}</p>
-            </div>
-            <div className="pool-div" />
-            <div>
-              <p className="pool-k">Winner takes</p>
-              <p className="pool-pct">{100 - buyback}%</p>
-            </div>
-          </div>
-          <a className="cta-primary" href="#wheel">Watch the next spin</a>
-        </div>
-        <div className="hero-right">
-          <LiveFeed />
-        </div>
-      </header>
+      <div className="divider" />
 
-      {/* WHEEL */}
-      <section className="section" id="wheel">
-        <div className="section-head">
-          <p className="sec-eyebrow">01 &mdash; The mechanism</p>
-          <h2 className="sec-title">The Wheel</h2>
+      {/* ── Prize pool ──────────────────── */}
+      <div className="pool-hero">
+        <span className="pool-label">Prize Pool</span>
+        <div className="pool-amount">{sol}<span>SOL</span></div>
+        <div className="pool-meta">
+          <span>{eligible || '—'} eligible holders</span>
+          <span>{100 - buyback}% to winner</span>
+          <span>{buyback}% bought &amp; burned</span>
+          <span>every 5 minutes</span>
+          <span>sqrt-weighted tickets</span>
         </div>
-        <div className="wheel-stage" ref={wheelHost}>
-          <Wheel entries={entries} onSpinEnd={onSpinEnd} />
-          <div className="wheel-side">
-            <p className="ws-line">
-              Segments are sized by tickets, not balance. Bigger bags weigh more, but
-              square-root weighting keeps whales from owning the wheel.
-            </p>
-            <div className="ws-stats">
-              <div><span>{state?.preview?.eligibleHolders ?? '\u2014'}</span><label>eligible holders</label></div>
-              <div><span>{buyback}%</span><label>bought &amp; burned</label></div>
-              <div><span>sqrt</span><label>weighting</label></div>
-            </div>
-            <button className="cta-primary wide" onClick={triggerSpin} disabled={spinning}>
-              {spinning ? 'Spinning\u2026' : isDemo ? 'Spin the wheel (preview)' : 'Force spin'}
-            </button>
-            {dryRun && <p className="ws-note">Dry-run mode &middot; no funds move until you go live.</p>}
-          </div>
-        </div>
-      </section>
+      </div>
 
-      {/* STORY */}
-      <section className="section story">
-        <div className="section-head">
-          <p className="sec-eyebrow">02 &mdash; How it works</p>
-          <h2 className="sec-title">Three steps, on repeat</h2>
-        </div>
-        <div className="steps">
-          <div className="step">
-            <span className="step-n">I</span>
-            <h3>Hold</h3>
-            <p>Every token in your wallet earns sqrt-weighted tickets. No staking, no lockup, no claim.</p>
-          </div>
-          <div className="step">
-            <span className="step-n">II</span>
-            <h3>Get drawn</h3>
-            <p>A sealed seed plus a Solana blockhash pick one wallet. Provably fair, verifiable by anyone.</p>
-          </div>
-          <div className="step">
-            <span className="step-n">III</span>
-            <h3>Get paid</h3>
-            <p>A slice of the pot buys the token back and burns it. The rest lands in the winner's wallet.</p>
-          </div>
-        </div>
-      </section>
+      <div className="divider" />
 
-      {/* WHY DIFFERENT */}
+      {/* ── Wheel ───────────────────────── */}
+      <div className="wheel-section" ref={wheelHost}>
+        <Wheel entries={entries} onSpinEnd={onSpinEnd} />
+        <button className="spin-btn" onClick={triggerSpin} disabled={spinning}>
+          {spinning ? 'Spinning…' : isDemo ? 'Spin the wheel' : 'Force spin'}
+        </button>
+        {dryRun && <span className="wheel-note">Dry-run mode — no funds move until live</span>}
+      </div>
+
+      <div className="divider" />
+
+      {/* ── Live feed ───────────────────── */}
+      <LiveFeed />
+
+      <div className="divider" />
+
+      {/* ── Leaderboard ─────────────────── */}
       <section className="section">
-        <div className="section-head">
-          <p className="sec-eyebrow">03 &mdash; The difference</p>
-          <h2 className="sec-title">No tax. Not a compromise.</h2>
-        </div>
-        <div className="why-lead">
+        <span className="section-label">02 — The room</span>
+        <h2 className="section-title">Holders &amp; Tickets</h2>
+        <Leaderboard entries={entries} />
+      </section>
+
+      <div className="divider" />
+
+      {/* ── Why different ───────────────── */}
+      <section className="section">
+        <span className="section-label">03 — The difference</span>
+        <h2 className="section-title">No tax.<br />Not a compromise.</h2>
+
+        <div className="why-intro">
           <p>
             Every lottery token before this ran on the same broken model: intercept trades,
             take a cut, fund the pot. It worked until it didn't — traders avoided buying,
-            liquidity slowly drained, and the chart bled. The tax was the product's own worst enemy.
+            liquidity slowly drained, and the chart bled out. The tax was the product's own
+            worst enemy.
           </p>
           <p>
             Cypher Wheel doesn't touch your tokens. The prize pool fills from Pump.fun creator
             fees — a platform-level mechanism that has nothing to do with your buy or sell.
-            You trade freely. The wheel keeps spinning.
+            You trade freely. The wheel keeps spinning. Every 5 minutes.
           </p>
         </div>
+
         <div className="compare">
           <div className="compare-col compare-bad">
-            <p className="compare-label">Other lottery tokens</p>
+            <span className="compare-label">Other lottery tokens</span>
             <ul className="compare-list">
-              <li>5–15% tax cut on every buy and sell</li>
+              <li>5–15% tax cut on every buy and every sell</li>
               <li>Tax drains liquidity on every single trade</li>
               <li>Traders avoid buying just to skip the fee</li>
               <li>Chart bleeds as liquidity slowly empties out</li>
               <li>Prize pool funded by punishing your own holders</li>
-              <li>Results unverifiable — you just trust the dev</li>
+              <li>Results unverifiable — trust the dev</li>
               <li>Sell pressure baked in from day one</li>
             </ul>
           </div>
           <div className="compare-col compare-good">
-            <p className="compare-label">Cypher Wheel</p>
+            <span className="compare-label">Cypher Wheel</span>
             <ul className="compare-list">
               <li>Zero transfer tax. Zero. On every trade, always.</li>
               <li>Pool funded by Pump.fun platform fees — not trades</li>
               <li>Buy and sell without losing a single token</li>
               <li>50% of every pot permanently burns the supply</li>
-              <li>Hold 1,000+ tokens and you're automatically entered</li>
+              <li>Hold 1,000+ tokens — you're automatically entered</li>
               <li>Every draw cryptographically verifiable on-chain</li>
               <li>Deflationary by design — every round makes it scarcer</li>
             </ul>
@@ -214,46 +175,80 @@ export default function App() {
         </div>
       </section>
 
-      {/* HOLDERS */}
+      <div className="divider" />
+
+      {/* ── How it works ────────────────── */}
       <section className="section">
-        <div className="section-head">
-          <p className="sec-eyebrow">04 &mdash; The room</p>
-          <h2 className="sec-title">The Holders</h2>
+        <span className="section-label">04 — How it works</span>
+        <h2 className="section-title">Three steps,<br />on repeat.</h2>
+        <div className="steps">
+          <div className="step">
+            <span className="step-n">01</span>
+            <h3>Hold</h3>
+            <p>
+              Every wallet holding at least 1,000 tokens is automatically entered.
+              No registration, no gas, no claim. Tickets are proportional to the
+              square root of your balance — bigger bags earn more, but whales don't
+              crush the room.
+            </p>
+          </div>
+          <div className="step">
+            <span className="step-n">02</span>
+            <h3>Get drawn</h3>
+            <p>
+              Every 5 minutes a snapshot closes. A server seed sealed with SHA-256
+              combines with a live Solana blockhash. One wallet is picked. The math
+              is public, the process is trustless, and every single draw is
+              independently verifiable.
+            </p>
+          </div>
+          <div className="step">
+            <span className="step-n">03</span>
+            <h3>Get paid</h3>
+            <p>
+              The pot splits in two. Exactly 50% goes directly to the winner's
+              wallet in SOL. The other 50% is used to market-buy the token on
+              Pump.fun and burn it permanently. The supply shrinks every 5 minutes,
+              forever.
+            </p>
+          </div>
         </div>
-        <Leaderboard entries={entries} />
       </section>
 
-      {/* FAIR */}
-      <section className="section fair">
-        <div className="section-head">
-          <p className="sec-eyebrow">05 &mdash; Trust</p>
-          <h2 className="sec-title">Provably fair, by design</h2>
-        </div>
+      <div className="divider" />
+
+      {/* ── Provably fair ───────────────── */}
+      <section className="section">
+        <span className="section-label">05 — Trust</span>
+        <h2 className="section-title">Provably fair,<br />by design.</h2>
         <div className="fair-body">
           <p className="fair-lead">
-            No one can grind the result. The seed is committed before the entropy exists;
-            the entropy is public and unpredictable when it does.
+            No one can grind the result. The seed is committed before the entropy
+            exists. The entropy is public and unpredictable when it does.
           </p>
-          <div className="fair-formula mono">
-            ticket = HMAC<span className="dim">_sha256</span>(serverSeed, blockhash) &nbsp;mod&nbsp; totalTickets
+          <div className="fair-formula">
+            ticket = HMAC<span className="dim">_sha256</span>(serverSeed, blockhash)&nbsp;&nbsp;mod&nbsp;&nbsp;totalTickets
           </div>
           <ul className="fair-list">
-            <li><span>sha256(serverSeed)</span> is published before each draw</li>
-            <li><span>blockhash</span> is captured live, after the seal</li>
-            <li><span>serverSeed</span> is revealed after &mdash; recompute and check</li>
+            <li><span>sha256(serverSeed)</span> is published before each draw as a public commitment</li>
+            <li><span>blockhash</span> is captured live from Solana after the commitment is sealed</li>
+            <li><span>serverSeed</span> is revealed post-draw — recompute the result yourself</li>
+            <li>Verify any round at <span>/api/verify/:id</span></li>
           </ul>
         </div>
       </section>
 
-      {/* FOOTER */}
+      <div className="divider" />
+
+      {/* ── Footer ──────────────────────── */}
       <footer className="footer">
-        <div className="foot-mark">
-          <span className="wm-mark">C</span>
-          <span className="wm-name">CYPHER</span>
+        <div className="footer-logo">
+          <span className="nav-logo-mark">C</span>
+          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: '0.1em' }}>CYPHER WHEEL</span>
         </div>
         <div className="foot-meta">
-          <span className="mono">{token ? `${token.slice(0, 8)}\u2026${token.slice(-6)}` : '\u2014'}</span>
-          <span>Holder rewards. Not financial advice.</span>
+          {token && <span>{token.slice(0, 8)}…{token.slice(-6)}</span>}
+          <span>Holder rewards · Not financial advice</span>
         </div>
       </footer>
 

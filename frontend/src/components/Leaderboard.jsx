@@ -1,43 +1,38 @@
 import React from 'react';
 
-function short(a) {
-  return a ? `${a.slice(0, 5)}…${a.slice(-4)}` : '';
-}
-function fmt(n) {
-  return Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
-}
-
-const DOTS = [
-  '#C9A86A', '#A88B5A', '#B89766', '#8B7A5A', '#C9A86A', '#9C8455',
-  '#B89766', '#A88B5A', '#C9A86A', '#8B7A5A', '#B89766', '#9C8455',
-];
+function short(a) { return a ? `${a.slice(0, 5)}…${a.slice(-4)}` : ''; }
+function fmt(n) { return Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 }); }
 
 export default function Leaderboard({ entries }) {
   return (
-    <section className="panel">
-      <div className="panel-head">
-        <h2>Holders &amp; tickets</h2>
-        <span className="muted">sqrt-weighted · live</span>
-      </div>
-      <div className="lb">
-        <div className="lb-row lb-head">
-          <span>#</span>
-          <span>Wallet</span>
-          <span className="num">Balance</span>
-          <span className="num">Tickets</span>
-          <span className="num">Win odds</span>
-        </div>
-        {entries.slice(0, 12).map((e, i) => (
-          <div className="lb-row" key={e.owner}>
-            <span className="dot" style={{ '--dot': DOTS[i % DOTS.length] }}>{i + 1}</span>
-            <span className="mono">{short(e.owner)}</span>
-            <span className="num mono">{fmt(e.balance)}</span>
-            <span className="num mono">{e.tickets.toFixed(1)}</span>
-            <span className="num odds">{(e.odds * 100).toFixed(1)}%</span>
-          </div>
+    <table className="lb-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Wallet</th>
+          <th className="right">Balance</th>
+          <th className="right">Tickets</th>
+          <th className="right">Win odds</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.slice(0, 15).map((e, i) => (
+          <tr key={e.owner}>
+            <td className="lb-rank dim">{i + 1}</td>
+            <td>{short(e.owner)}</td>
+            <td className="dim right">{fmt(e.balance)}</td>
+            <td className="dim right">{e.tickets.toFixed(1)}</td>
+            <td className="odds right">{(e.odds * 100).toFixed(1)}%</td>
+          </tr>
         ))}
-        {entries.length === 0 && <div className="empty">Waiting for eligible holders…</div>}
-      </div>
-    </section>
+        {entries.length === 0 && (
+          <tr>
+            <td colSpan={5} style={{ color: 'var(--fg-3)', padding: '32px 0' }}>
+              Waiting for eligible holders…
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
   );
 }

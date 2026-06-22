@@ -70,8 +70,8 @@ export default function App() {
       {/* ── Nav ─────────────────────────── */}
       <nav className="nav">
         <div className="nav-logo">
-          <span className="nav-logo-mark">C</span>
-          CYPHER WHEEL
+          <span className="nav-logo-mark">V</span>
+          VORTEX
         </div>
 
         <div className="nav-timer">
@@ -139,9 +139,9 @@ export default function App() {
             worst enemy.
           </p>
           <p>
-            Cypher Wheel doesn't touch your tokens. The prize pool fills from Pump.fun creator
+            Vortex doesn't touch your tokens. The prize pool fills from Pump.fun creator
             fees — a platform-level mechanism that has nothing to do with your buy or sell.
-            You trade freely. The wheel keeps spinning. Every 5 minutes.
+            You trade freely. The draw keeps spinning. Every 5 minutes.
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export default function App() {
             </ul>
           </div>
           <div className="compare-col compare-good">
-            <span className="compare-label">Cypher Wheel</span>
+            <span className="compare-label">Vortex</span>
             <ul className="compare-list">
               <li>Zero transfer tax. Zero. On every trade, always.</li>
               <li>Pool funded by Pump.fun platform fees — not trades</li>
@@ -241,8 +241,8 @@ export default function App() {
       {/* ── Footer ──────────────────────── */}
       <footer className="footer">
         <div className="footer-logo">
-          <span className="nav-logo-mark">C</span>
-          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: '0.1em' }}>CYPHER WHEEL</span>
+          <span className="nav-logo-mark">V</span>
+          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: '0.1em' }}>VORTEX</span>
         </div>
         <div className="foot-meta">
           {token && <span>{token.slice(0, 8)}…{token.slice(-6)}</span>}

@@ -78,18 +78,18 @@ function pushReal(round) {
   feed.length = Math.min(feed.length, 24);
 }
 
-let demoState = { poolSol: 6.8 + Math.random() * 4, nextSpinAt: Date.now() + 60000, rounds: [] };
+let offlineState = { poolSol: 6.8 + Math.random() * 4, nextSpinAt: Date.now() + 300_000, rounds: [] };
 
-function demoStatePayload() {
+function offlineStatePayload() {
   const holders = buildDemoHolders();
   const { entries, total } = sqrtTickets(holders);
-  demoState.poolSol += Math.random() * 0.05;
+  offlineState.poolSol += Math.random() * 0.05;
   return {
-    demo: true, token: 'DEMOmint1111111111111111111111111111111111',
-    poolSol: demoState.poolSol, buybackPercent: 20, buybackMode: 'burn',
-    weighting: 'sqrt', dryRun: true, intervalSeconds: 3600,
-    nextSpinAt: demoState.nextSpinAt, running: false,
-    lastRound: demoState.rounds[0] || null,
+    token: null,
+    poolSol: offlineState.poolSol, buybackPercent: 50, buybackMode: 'burn',
+    weighting: 'sqrt', dryRun: true, intervalSeconds: 300,
+    nextSpinAt: offlineState.nextSpinAt, running: false,
+    lastRound: offlineState.rounds[0] || null,
     preview: {
       eligibleHolders: holders.length, totalHolders: holders.length + 6, totalTickets: total,
       entries: entries.map((e) => ({ owner: e.owner, balance: e.balance, tickets: e.tickets, odds: e.odds })),
@@ -110,29 +110,29 @@ async function tryFetch(url, opts) {
 
 export async function getState() {
   try { return await tryFetch('/api/state'); }
-  catch { return demoStatePayload(); }
+  catch { return offlineStatePayload(); }
 }
 
-export function runDemoRound() {
+export function runSpin() {
   const holders = buildDemoHolders();
   const { entries, total } = sqrtTickets(holders);
   const ticket = Math.random() * total;
   const winner = entries.find((e) => ticket >= e.start && ticket < e.end) || entries[0];
   const winnerIndex = entries.indexOf(winner);
-  const distributable = Math.max(0, demoState.poolSol - 0.01);
-  const buybackSol = +(distributable * 0.2).toFixed(4);
-  const prizeSol = +(distributable - buybackSol).toFixed(4);
+  const distributable = Math.max(0, offlineState.poolSol - 0.01);
+  const buybackSol = +(distributable * 0.5).toFixed(4);
+  const prizeSol   = +(distributable - buybackSol).toFixed(4);
   const round = {
-    id: Date.now(), status: 'complete', dryRun: true, demo: true,
+    id: Date.now(), status: 'complete', dryRun: true,
     winner: winner.owner, winnerBalance: winner.balance, winnerOdds: winner.odds,
-    prizeSol, buybackSol, poolSol: demoState.poolSol,
+    prizeSol, buybackSol, poolSol: offlineState.poolSol,
     blockhash: randAddr(), commitment: randAddr(),
     winningTicket: Math.floor(ticket), totalTickets: Math.floor(total),
   };
-  demoState.rounds.unshift(round);
+  offlineState.rounds.unshift(round);
   pushReal(round);
-  demoState.poolSol = 0.4 + Math.random() * 0.6;
-  demoState.nextSpinAt = Date.now() + 60000;
+  offlineState.poolSol = 0.4 + Math.random() * 0.6;
+  offlineState.nextSpinAt = Date.now() + 300_000;
   return { round, entries, winnerIndex };
 }
 

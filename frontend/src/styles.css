@@ -141,7 +141,6 @@ body::before {
   border: 1px solid;
 }
 
-.pill-demo { color: var(--green); border-color: rgba(34,197,94,0.3); background: var(--green-dim); }
 .pill-dry  { color: #f59e0b; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.08); }
 
 /* ── Pool hero ──────────────────────────────────────── */

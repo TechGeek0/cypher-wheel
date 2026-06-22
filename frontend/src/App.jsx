@@ -3,7 +3,7 @@ import Wheel from './components/Wheel.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
 import LiveFeed from './components/LiveFeed.jsx';
 import WinnerModal from './components/WinnerModal.jsx';
-import { getState, getRounds, runDemoRound } from './api.js';
+import { getState, runSpin } from './api.js';
 
 function useCountdown(target) {
   const [now, setNow] = useState(Date.now());
@@ -41,7 +41,7 @@ export default function App() {
 
   function triggerSpin() {
     if (spinning) return;
-    const { round, entries: e, winnerIndex } = runDemoRound();
+    const { round, entries: e, winnerIndex } = runSpin();
     setEntries(e);
     setSpinning(true);
     requestAnimationFrame(() => {
@@ -58,7 +58,6 @@ export default function App() {
     if (r) { setWinner(r); refresh(); }
   }
 
-  const isDemo  = state?.demo;
   const dryRun  = state?.dryRun ?? true;
   const buyback = state?.buybackPercent ?? 50;
   const eligible = state?.preview?.eligibleHolders ?? 0;
@@ -81,7 +80,6 @@ export default function App() {
         </div>
 
         <div className="nav-status">
-          {isDemo && <span className="pill pill-demo">demo</span>}
           {dryRun && <span className="pill pill-dry">dry run</span>}
         </div>
       </nav>
@@ -107,7 +105,7 @@ export default function App() {
       <div className="wheel-section" ref={wheelHost}>
         <Wheel entries={entries} onSpinEnd={onSpinEnd} />
         <button className="spin-btn" onClick={triggerSpin} disabled={spinning}>
-          {spinning ? 'Spinning…' : isDemo ? 'Spin the wheel' : 'Force spin'}
+          {spinning ? 'Spinning…' : 'Spin the wheel'}
         </button>
         {dryRun && <span className="wheel-note">Dry-run mode — no funds move until live</span>}
       </div>

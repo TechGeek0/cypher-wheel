@@ -1,7 +1,37 @@
+# ── Dependencies ──────────────────────────────────────
 node_modules/
+
+# ── Build output ──────────────────────────────────────
 dist/
+build/
+.output/
+
+# ── Environment / secrets — NEVER commit these ────────
 .env
+.env.*
+*.env
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
 .env.local
+.env.development
+.env.production
+.env.staging
+
+# ── Logs ──────────────────────────────────────────────
 *.log
+logs/
+npm-debug.log*
+
+# ── OS junk ───────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# ── Editor ────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+
+# ── Vercel ────────────────────────────────────────────
+.vercel

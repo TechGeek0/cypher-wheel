@@ -1,6 +1,8 @@
 // Talks to the backend at /api/*. If the backend isn't running yet,
 // it falls back to live-feeling demo data so the page is alive immediately.
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 const SOL_NAMES = ['So111', '7xKXt', 'EPjFW', 'mSoLz', 'orcaE', 'JUPyi', 'bonkA', 'WENse'];
 
 function randAddr() {
@@ -97,11 +99,11 @@ function offlineStatePayload() {
   };
 }
 
-async function tryFetch(url, opts) {
+async function tryFetch(path, opts) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 2500);
   try {
-    const r = await fetch(url, { ...opts, signal: ctrl.signal });
+    const r = await fetch(API_BASE + path, { ...opts, signal: ctrl.signal });
     clearTimeout(t);
     if (!r.ok) throw new Error(String(r.status));
     return await r.json();
@@ -138,5 +140,5 @@ export function runSpin() {
 
 export async function getRounds() {
   try { const d = await tryFetch('/api/rounds'); return d.rounds || []; }
-  catch { return demoState.rounds; }
+  catch { return offlineState.rounds; }
 }
